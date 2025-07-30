@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>企画の詳細</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="apple-touch-icon" href="favicon.png" />
+  <meta name="theme-color" content="#ffffff" />
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      updateDoc,
+      collection,
+      addDoc,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDlo942_HW-RxF3B1uEuB1msR1dr4cPTB0",
+        authDomain: "tokai-kikaku.firebaseapp.com",
+        projectId: "tokai-kikaku",
+        storageBucket: "tokai-kikaku.firebasestorage.app",
+        messagingSenderId: "185594261514",
+        appId: "1:185594261514:web:06b47ccfa1e2f0efa16ff3",
+        measurementId: "G-WJJEHEZPZ2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>"']/g, function (m) {
+        return ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        })[m];
+      });
+    }
+
+    function formatDate(isoStr) {
+      const date = new Date(isoStr);
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      const hh = String(date.getHours()).padStart(2, '0');
+      const mi = String(date.getMinutes()).padStart(2, '0');
+      return `${yyyy}/${mm}/${dd} ${hh}:${mi}`;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const opinionId = params.get("id");
+    const container = document.getElementById("detail-container");
+
+    async function loadDetail() {
+      const opinionDoc = doc(db, "opinions", opinionId);
+      const snap = await getDoc(opinionDoc);
+      if (!snap.exists()) {
+        container.innerHTML = "<p>意見が見つかりません。</p>";
+        return;
+      }
+
+      const op = snap.data();
+      const shareUrl = encodeURIComponent(window.location.href);
+      const shareText = encodeURIComponent(`${op.title} #東海オンエアにやってほしい`);
+
+      container.innerHTML = `
+        <h3>${escapeHTML(op.title)}</h3>
+        <p class="post-date">投稿日: ${formatDate(op.createdAt)}</p>
+        <p>${escapeHTML(op.content)}</p>
+        <div class="opinion-meta">
+          <button id="good-btn">
+            <i class="fas fa-thumbs-up icon-margin"></i>${op.good}
+          </button>
+        </div>
+
+        <div class="share-section">
+          <h4><i class="fas fa-share"></i> この投稿を共有する</h4>
+          <a href="https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}"
+             target="_blank" rel="noopener noreferrer" class="sns-share-btn">
+            <i class="fab fa-x-twitter"></i> で共有
+          </a>
+        </div>
+
+        <div class="comment-section">
+          <h4><i class="fas fa-comment"></i> コメント</h4>
+          <ul id="comment-list">読み込み中...</ul>
+          <textarea id="comment-input" placeholder="コメントを書く"></textarea>
+          <button id="comment-submit">送信</button>
+        </div>
+      `;
+
+      // グッド処理
+      document.getElementById("good-btn").addEventListener("click", async () => {
+        await updateDoc(opinionDoc, { good: op.good + 1 });
+        loadDetail();
+      });
+
+      // コメント送信処理
+      document.getElementById("comment-submit").addEventListener("click", async () => {
+        const text = document.getElementById("comment-input").value.trim();
+        if (!text) return;
+
+        await addDoc(collection(opinionDoc, "comments"), {
+          text,
+          createdAt: new Date().toISOString()
+        });
+        loadDetail(); // 再読み込み
+      });
+
+      // コメント一覧読み込み
+      const commentList = document.getElementById("comment-list");
+      commentList.innerHTML = "";
+      const commentSnap = await getDocs(collection(opinionDoc, "comments"));
+      const comments = [];
+      commentSnap.forEach(doc => comments.push(doc.data()));
+
+      if (comments.length === 0) {
+        commentList.innerHTML = "<li>まだコメントがありません。</li>";
+      } else {
+        comments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        commentList.innerHTML = comments.map(c => `
+          <li>${escapeHTML(c.text)}<br>
+            <span class="post-date">${formatDate(c.createdAt)}</span>
+          </li>
+        `).join("");
+      }
+    }
+
+    loadDetail();
+  </script>
+
+  <style>
+    .sns-share-btn {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 8px 12px;
+      background-color: #1DA1F2;
+      color: white;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .sns-share-btn:hover {
+      opacity: 0.85;
+    }
+    .share-section {
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>
+      <a href="index.html" style="color: white; text-decoration: none;">← 東海オンエアにやってほしいことBOX</a>
+    </h1>
+  </header>
+
+  <main>
+    <div id="detail-container" class="opinion-card">
+      <!-- 詳細情報がここに表示される -->
+    </div>
+  </main>
+</body>
+</html>

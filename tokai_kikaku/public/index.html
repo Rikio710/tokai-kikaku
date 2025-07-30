@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>東海オンエアファンの企画案 | 企画アイデア投稿サイト</title>
+  <meta name="description" content="東海オンエアの企画案を投稿・評価できるファン参加型アイデアBOX。見てみたい企画を共有しよう！" />
+  <meta name="keywords" content="東海オンエア,企画,ネタ投稿,ファンアイデア,意見BOX,youtube,てつや,しばゆー,としみつ,りょう,虫眼鏡,ゆめまる,uuum" />
+  <link rel="stylesheet" href="style.css" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="apple-touch-icon" href="favicon.png" />
+  <meta name="theme-color" content="#ffffff" />
+</head>
+<body>
+  <header>
+    <h1>東海オンエアにやってほしいことBOX</h1>
+  </header>
+
+  <main>
+    <!-- 注意書き -->
+    <section id="notice" class="notice-box">
+      <h3>🚨ご利用にあたっての注意</h3>
+      <p>
+        このサイトは、<strong>東海オンエアファンによるファンのための企画案共有サイト</strong>です。<br>
+        動画で採用されることを目的としたものではなく、「こんな企画があったら楽しそう！」という
+        ファン同士のアイデア交流の場です。<br>
+        <strong>誹謗中傷や悪意のある投稿・コメントはご遠慮ください。</strong><br>
+        みんなで楽しい場をつくっていきましょう！
+      </p>
+    </section>
+
+    <!-- 投稿フォーム -->
+    <section id="post-form">
+      <h2>東海オンエアにお願い！新ネタ大募集🔥</h2>
+      <input type="text" id="title" placeholder="タイトルを入力" />
+      <textarea id="content" placeholder="内容を入力"></textarea>
+
+      <!-- カテゴリ追加 -->
+      <label for="category">カテゴリを選んでね：</label>
+      <select id="category">
+        <option value="検証">検証系</option>
+        <option value="旅行">旅行系</option>
+        <option value="ゲーム">ゲーム系</option>
+        <option value="食べる">食べる系</option>
+        <option value="スポーツ">スポーツ系</option>
+        <option value="クイズ">クイズ系</option>
+        <option value="コント">コント系</option>
+        <option value="その他">その他</option>
+      </select>
+      <br />
+      <button id="submit">投稿する</button>
+    </section>
+
+    <hr />
+
+    <!-- 意見一覧 -->
+    <section id="opinions">
+      <h2>投稿された「やってほしいこと」たち</h2>
+
+      <div style="margin-bottom: 1rem;">
+        並び替え：
+        <select id="sort-select">
+          <option value="latest">最新順</option>
+          <option value="rating">グッド数順</option>
+        </select>
+      </div>
+
+      <!-- カテゴリ絞り込み -->
+      <div style="margin-bottom: 1rem;">
+        カテゴリで絞り込み：
+        <select id="filter-category">
+          <option value="all">すべて</option>
+          <option value="検証">検証</option>
+          <option value="旅行">旅行系</option>
+          <option value="ゲーム">ゲーム系</option>
+          <option value="食べる">食べる系</option>
+          <option value="スポーツ">スポーツ系</option>
+          <option value="クイズ">クイズ系</option>
+          <option value="コント">コント系</option>
+          <option value="その他">その他</option>
+        </select>
+      </div>
+
+      <div id="opinion-list">
+        <!-- 意見カードがここに追加される -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Firebase連携用のscript.js（モジュール版） -->
+  <script type="module" src="script.js"></script>
+</body>
+</html>
